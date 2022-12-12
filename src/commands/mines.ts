@@ -123,8 +123,8 @@ async function run(message: Message | (NypsiCommandInteraction & CommandInteract
       .addField(
         "game rules",
         "a 5x5 grid of white squares will be created\n" +
-          "once youve chosen your square, it will become green if there was no mine, if there was, you will lose your bet\n" +
-          "if you don't choose an amount of mines, you will be given 3-6 mines, giving you 0.5x per square"
+        "once youve chosen your square, it will become green if there was no mine, if there was, you will lose your bet\n" +
+        "if you don't choose an amount of mines, you will be given 3-6 mines, giving you 0.5x per square"
       );
 
     return send({ embeds: [embed] });
@@ -178,7 +178,7 @@ async function prepareGame(
   const maxBet = await calcMaxBet(message.member);
   const defaultBet = await getDefaultBet(message.member);
 
-  let bet = (await formatBet(args[0] || "", message.member).catch(() => {})) || defaultBet;
+  let bet = (await formatBet(args[0] || "", message.member).catch(() => { })) || defaultBet;
 
   if (!(message instanceof Message) && message.isChatInputCommand()) {
     bet = (await formatBet(message.options.getString("bet") || "", message.member)) || defaultBet;
@@ -347,7 +347,7 @@ async function prepareGame(
     increment: incrementAmount,
   });
 
-  const embed = new CustomEmbed(message.member, "**bet** $" + bet.toLocaleString() + "\n**0**x ($0)").setHeader(
+  const embed = new CustomEmbed(message.member, "💰 $" + await getBalance(message.member).toLocaleString() + "\n\n**bet** $" + bet.toLocaleString() + "\n**0**x ($0)").setHeader(
     "mines",
     message.author.avatarURL()
   );
@@ -495,7 +495,7 @@ async function playGame(
       .catch(() => {
         (
           components[components.length - 1].components[
-            components[components.length - 1].components.length - 1
+          components[components.length - 1].components.length - 1
           ] as ButtonBuilder
         )
           .setCustomId("rp")
@@ -550,13 +550,15 @@ async function playGame(
     await addGamble(message.member, "mines", false);
     embed.setColor(Constants.EMBED_FAIL_COLOR);
     embed.setDescription(
-      "**bet** $" +
-        bet.toLocaleString() +
-        "\n**" +
-        win.toFixed(2) +
-        "**x ($" +
-        Math.round(bet * win).toLocaleString() +
-        ")\n\n**you lose!!**"
+      "💰 $" +
+      await getBalance(message.member).toLocaleString() +
+      "\n\n**bet** $" +
+      bet.toLocaleString() +
+      "\n**" +
+      win.toFixed(2) +
+      "**x ($" +
+      Math.round(bet * win).toLocaleString() +
+      ")\n\n**you lose!!**"
     );
     games.delete(message.author.id);
     return replay(embed);
@@ -570,33 +572,37 @@ async function playGame(
       winnings = winnings + Math.round(winnings * games.get(message.member.user.id).voted);
 
       embed.setDescription(
-        "**bet** $" +
-          bet.toLocaleString() +
-          "\n" +
-          "**" +
-          win.toFixed(2) +
-          "**x ($" +
-          Math.round(bet * win).toLocaleString() +
-          ")" +
-          "\n\n**winner!!**\n**you win** $" +
-          winnings.toLocaleString() +
-          "\n" +
-          "+**" +
-          Math.floor(games.get(message.member.user.id).voted * 100).toString() +
-          "**% bonus"
+        "💰 $" +
+        await getBalance(message.member).toLocaleString() +
+        "\n\n**bet** $" +
+        bet.toLocaleString() +
+        "\n" +
+        "**" +
+        win.toFixed(2) +
+        "**x ($" +
+        Math.round(bet * win).toLocaleString() +
+        ")" +
+        "\n\n**winner!!**\n**you win** $" +
+        winnings.toLocaleString() +
+        "\n" +
+        "+**" +
+        Math.floor(games.get(message.member.user.id).voted * 100).toString() +
+        "**% bonus"
       );
     } else {
       embed.setDescription(
-        "**bet** $" +
-          bet.toLocaleString() +
-          "\n" +
-          "**" +
-          win.toFixed(2) +
-          "**x ($" +
-          Math.round(bet * win).toLocaleString() +
-          ")" +
-          "\n\n**winner!!**\n**you win** $" +
-          winnings.toLocaleString()
+        "💰 $" +
+        await getBalance(message.member).toLocaleString() +
+        "\n\n**bet** $" +
+        bet.toLocaleString() +
+        "\n" +
+        "**" +
+        win.toFixed(2) +
+        "**x ($" +
+        Math.round(bet * win).toLocaleString() +
+        ")" +
+        "\n\n**winner!!**\n**you win** $" +
+        winnings.toLocaleString()
       );
     }
 
@@ -628,15 +634,17 @@ async function playGame(
     await addGamble(message.member, "mines", true);
     embed.setColor(variants.macchiato.yellow.hex as ColorResolvable);
     embed.setDescription(
-      "**bet** $" +
-        bet.toLocaleString() +
-        "\n**" +
-        win.toFixed(2) +
-        "**x ($" +
-        Math.round(bet * win).toLocaleString() +
-        ")" +
-        "\n\n**draw!!**\nyou win $" +
-        bet.toLocaleString()
+      "💰 $" +
+      await getBalance(message.member).toLocaleString() +
+      "\n\n**bet** $" +
+      bet.toLocaleString() +
+      "\n**" +
+      win.toFixed(2) +
+      "**x ($" +
+      Math.round(bet * win).toLocaleString() +
+      ")" +
+      "\n\n**draw!!**\nyou win $" +
+      bet.toLocaleString()
     );
     await updateBalance(message.member, (await getBalance(message.member)) + bet);
     games.delete(message.author.id);
@@ -769,13 +777,15 @@ async function playGame(
       });
 
       embed.setDescription(
-        "**bet** $" +
-          bet.toLocaleString() +
-          "\n**" +
-          win.toFixed(2) +
-          "**x ($" +
-          Math.round(bet * win).toLocaleString() +
-          ")"
+        "💰 $" +
+        await getBalance(message.member).toLocaleString() +
+        "\n\n**bet** $" +
+        bet.toLocaleString() +
+        "\n**" +
+        win.toFixed(2) +
+        "**x ($" +
+        Math.round(bet * win).toLocaleString() +
+        ")"
       );
 
       if (win >= 15) {
